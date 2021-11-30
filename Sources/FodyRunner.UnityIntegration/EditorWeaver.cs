@@ -1,6 +1,7 @@
 ﻿namespace Malimbe.FodyRunner.UnityIntegration
 {
     using System;
+    using Reflection = System.Reflection;
     using System.Collections.Generic;
     using System.Linq;
     using JetBrains.Annotations;
@@ -51,6 +52,11 @@
                 if (didChangeAnyAssembly)
                 {
                     AssetDatabase.Refresh();
+                    Reflection.MethodInfo checkMethod = typeof(EditorUtility).GetMethod("RequestScriptReload", Reflection.BindingFlags.Public | Reflection.BindingFlags.Static);
+                    if (checkMethod != null)
+                    {
+                        checkMethod.Invoke(null, null);
+                    }
                 }
             }
         }
