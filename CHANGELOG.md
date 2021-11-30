@@ -1,5 +1,19 @@
 # Changelog
 
+## [9.7.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.6...v9.7.0) (2021-11-30)
+
+#### Features
+
+* **UnityIntegration:** invoke RequestScriptReload by reflection ([2b8436f](https://github.com/ExtendRealityLtd/Malimbe/commit/2b8436fcfdfad58fd80752606815068617d65a94))
+  > The EditorUnity class now has a RequestScriptReload method that can be used to ensure the weavers are run on first compilation. This will resolve the issue where weavers are not run first time on Unity 2020 or above.
+  > 
+  > Signed-off-by: Simon Ferquel <simon.ferquel@unity3d.com>
+
+#### Miscellaneous Chores
+
+* **README.md:** update title logo to related-media repo ([8ac7fcb](https://github.com/ExtendRealityLtd/Malimbe/commit/8ac7fcba08f334033b04089b1527190edfb3fca0))
+  > The title logo is now located on the related-media repo.
+
 ### [9.6.6](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.5...v9.6.6) (2021-02-04)
 
 #### Bug Fixes
