@@ -1,4 +1,4 @@
-﻿namespace Malimbe.FodyRunner.UnityIntegration
+namespace Malimbe.FodyRunner.UnityIntegration
 {
     using System;
     using Reflection = System.Reflection;
@@ -14,14 +14,19 @@
         [InitializeOnLoadMethod]
         private static void OnEditorInitialization()
         {
+#if !UNITY_2021_1_OR_NEWER
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+#endif
             WeaveAllAssemblies();
         }
 
         private static void WeaveAllAssemblies()
         {
             EditorApplication.LockReloadAssemblies();
+
+#if !UNITY_2021_1_OR_NEWER
             bool didChangeAnyAssembly = false;
+#endif
 
             try
             {
@@ -42,13 +47,17 @@
                         continue;
                     }
 
+#if !UNITY_2021_1_OR_NEWER
                     AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
                     didChangeAnyAssembly = true;
+#endif
                 }
             }
             finally
             {
                 EditorApplication.UnlockReloadAssemblies();
+
+#if !UNITY_2021_1_OR_NEWER
                 if (didChangeAnyAssembly)
                 {
                     AssetDatabase.Refresh();
@@ -58,9 +67,11 @@
                         checkMethod.Invoke(null, null);
                     }
                 }
+#endif
             }
         }
 
+#if !UNITY_2021_1_OR_NEWER
         private static void OnCompilationFinished(string path, CompilerMessage[] messages)
         {
             Assembly foundAssembly = GetAllAssemblies()
@@ -76,6 +87,7 @@
 
             WeaveAssembly(foundAssembly, runner);
         }
+#endif
 
         [NotNull]
         private static IEnumerable<Assembly> GetAllAssemblies() =>

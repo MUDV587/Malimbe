@@ -1,4 +1,4 @@
-﻿namespace Malimbe.MemberClearanceMethod.Fody
+namespace Malimbe.MemberClearanceMethod.Fody
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +43,7 @@
                     case PropertyDefinition propertyDefinition:
                         if (propertyDefinition.SetMethod == null)
                         {
-                            LogError(
+                            WriteError(
                                 $"The property '{propertyDefinition.FullName}' is annotated"
                                 + " to be cleared but has no setter.");
                         }
@@ -65,7 +65,7 @@
 
                 if (typeReference.IsPrimitive || typeReference.IsValueType)
                 {
-                    LogError(
+                    WriteError(
                         $"The member '{memberDefinition.FullName}' is annotated to be cleared"
                         + $" but its type '{typeReference.FullName}' isn't of reference type.");
                     continue;
@@ -77,7 +77,7 @@
                 MethodDefinition clearMethodDefinition = FindClearMethod(memberDefinition, methodName);
                 if (clearMethodDefinition != null)
                 {
-                    LogInfo(
+                    WriteInfo(
                         $"The clear method '{clearMethodDefinition.FullName}' already exists. A setter call"
                         + $" to clear the member '{memberDefinition.FullName}' will be inserted nonetheless."
                         + " The clearing will be done at the end of the existing method.");
@@ -108,7 +108,7 @@
 
         private void FindReferences() =>
             _compilerGeneratedAttributeConstructorReference = ModuleDefinition.ImportReference(
-                FindType("System.Runtime.CompilerServices.CompilerGeneratedAttribute")
+                FindTypeDefinition("System.Runtime.CompilerServices.CompilerGeneratedAttribute")
                     .Methods.First(definition => definition.IsConstructor));
 
         private bool FindAndRemoveAttribute(IMemberDefinition memberDefinition)
@@ -121,7 +121,7 @@
             }
 
             memberDefinition.CustomAttributes.Remove(foundAttribute);
-            LogInfo($"Removed the attribute '{_fullAttributeName}' from the member '{memberDefinition.FullName}'.");
+            WriteInfo($"Removed the attribute '{_fullAttributeName}' from the member '{memberDefinition.FullName}'.");
             return true;
         }
 
@@ -166,7 +166,7 @@
                 ++index,
                 Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.CreateGenericMethodIfNeeded()));
 
-            LogInfo(
+            WriteInfo(
                 $"Inserted a setter call to clear the property '{propertyDefinition.FullName}'"
                 + $" into the method '{methodDefinition.FullName}'.");
         }
@@ -185,7 +185,7 @@
             // Store into field
             instructions.Insert(++index, Instruction.Create(OpCodes.Stfld, fieldReference));
 
-            LogInfo(
+            WriteInfo(
                 $"Inserted a setter call to clear the field '{fieldReference.FullName}'"
                 + $" into the method '{methodDefinition.FullName}'.");
         }

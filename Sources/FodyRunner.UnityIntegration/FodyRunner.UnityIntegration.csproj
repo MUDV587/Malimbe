@@ -5,7 +5,7 @@
     <AssemblyName>Malimbe.FodyRunner.UnityIntegration</AssemblyName>
     <RootNamespace>Malimbe.FodyRunner.UnityIntegration</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.3.10f1\Editor\Data\Managed</UnityEditorAssembliesPath>
+    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">D:\Program Files\Unity\2021.3.1f1\Editor\Data\Managed</UnityEditorAssembliesPath>
   </PropertyGroup>
 
   <ItemGroup>

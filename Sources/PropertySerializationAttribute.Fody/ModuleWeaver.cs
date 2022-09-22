@@ -1,4 +1,4 @@
-﻿namespace Malimbe.PropertySerializationAttribute.Fody
+namespace Malimbe.PropertySerializationAttribute.Fody
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -34,14 +34,14 @@
                 FieldReference backingFieldReference = propertyDefinition.FindBackingField();
                 if (backingFieldReference == null)
                 {
-                    LogError(
+                    WriteError(
                         $"No backing field for the property '{propertyDefinition.FullName}' was found."
                         + " A field is assumed to be backing the property if the property getter loads"
                         + " the field and the setter stores into that same field.");
                     continue;
                 }
 
-                LogInfo(
+                WriteInfo(
                     $"Assuming the field '{backingFieldReference.FullName}' is the backing field for"
                     + $" the property '{propertyDefinition.FullName}'.");
 
@@ -56,7 +56,7 @@
 
         private void FindReferences() =>
             _serializeFieldAttributeConstructorReference = ModuleDefinition.ImportReference(
-                FindType("UnityEngine.SerializeField").Methods.First(definition => definition.IsConstructor));
+                FindTypeDefinition("UnityEngine.SerializeField").Methods.First(definition => definition.IsConstructor));
 
         private bool FindAndRemoveAttribute(IMemberDefinition propertyDefinition)
         {
@@ -68,7 +68,7 @@
             }
 
             propertyDefinition.CustomAttributes.Remove(foundAttribute);
-            LogInfo(
+            WriteInfo(
                 $"Removed the attribute '{_fullAttributeName}' from"
                 + $" the property '{propertyDefinition.FullName}'.");
             return true;
@@ -84,7 +84,7 @@
                 customAttribute => customAttribute.Constructor != _serializeFieldAttributeConstructorReference))
             {
                 customAttributes.Add(new CustomAttribute(_serializeFieldAttributeConstructorReference));
-                LogInfo(
+                WriteInfo(
                     $"Added the attribute '{_serializeFieldAttributeConstructorReference.DeclaringType.FullName}'"
                     + $" to the field '{backingFieldReference.FullName}'.");
             }
@@ -115,7 +115,7 @@
             }
 
             backingFieldDefinition.Name = newFieldName;
-            LogInfo($"Changed the name of the field '{previousFieldName}' to '{newFieldName}'.");
+            WriteInfo($"Changed the name of the field '{previousFieldName}' to '{newFieldName}'.");
         }
     }
 }

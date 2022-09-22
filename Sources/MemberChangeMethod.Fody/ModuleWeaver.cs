@@ -1,4 +1,4 @@
-﻿namespace Malimbe.MemberChangeMethod.Fody
+namespace Malimbe.MemberChangeMethod.Fody
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +43,7 @@
 
                     if (propertyDefinition.SetMethod == null)
                     {
-                        LogError(
+                        WriteError(
                             $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
                             + $" property '{propertyDefinition.FullName}' but the property has no setter.");
                         continue;
@@ -64,14 +64,14 @@
         {
             MethodReference ImportPropertyGetter(string typeName, string propertyName) =>
                 ModuleDefinition.ImportReference(
-                    FindType(typeName).Properties.Single(definition => definition.Name == propertyName).GetMethod);
+                    FindTypeDefinition(typeName).Properties.Single(definition => definition.Name == propertyName).GetMethod);
 
             _isApplicationPlayingGetterReference = ImportPropertyGetter("UnityEngine.Application", "isPlaying");
             _isActiveAndEnabledGetterReference = ImportPropertyGetter("UnityEngine.Behaviour", "isActiveAndEnabled");
             _compilerGeneratedAttributeConstructorReference = ModuleDefinition.ImportReference(
-                FindType("System.Runtime.CompilerServices.CompilerGeneratedAttribute")
+                FindTypeDefinition("System.Runtime.CompilerServices.CompilerGeneratedAttribute")
                     .Methods.First(definition => definition.IsConstructor));
-            _behaviourReference = ModuleDefinition.ImportReference(FindType("UnityEngine.Behaviour"));
+            _behaviourReference = ModuleDefinition.ImportReference(FindTypeDefinition("UnityEngine.Behaviour"));
             _isCompilingForEditor = DefineConstants.Contains("UNITY_EDITOR");
         }
 
@@ -103,7 +103,7 @@
 
             if (propertyDefinition == null)
             {
-                LogError(
+                WriteError(
                     $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
                     + $" property '{propertyName}' but the property doesn't exist.");
                 return false;
@@ -115,7 +115,7 @@
                 return true;
             }
 
-            LogError(
+            WriteError(
                 $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
                 + $" property '{propertyName}' but the method signature doesn't match. The expected signature is"
                 + $" 'void {methodDefinition.Name}()'.");
@@ -145,7 +145,7 @@
                 setterCallInstruction.OpCode = OpCodes.Stfld;
                 setterCallInstruction.Operand = backingField;
 
-                LogInfo(
+                WriteInfo(
                     $"Changed the property setter call in '{methodDefinition.FullName}' to set the backing"
                     + $" field '{backingField.FullName}' instead to prevent a potential infinite loop.");
             }
@@ -334,7 +334,7 @@
                         methodDefinition.IsReuseSlot = true;
                         methodDefinition.IsHideBySig = true;
 
-                        LogInfo(
+                        WriteInfo(
                             $"Changed the method '{methodDefinition.FullName}' to override the"
                             + $" newly added base method '{baseMethodDefinition.FullName}'.");
                     }
@@ -351,7 +351,7 @@
 
                 methodBody.OptimizeMacros();
 
-                LogInfo(
+                WriteInfo(
                     $"Inserted a call to the method '{methodReference.FullName}' into"
                     + $" the setter of the property '{propertyDefinition.FullName}'.");
             }

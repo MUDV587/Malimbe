@@ -1,4 +1,4 @@
-﻿namespace Malimbe.FodyRunner
+namespace Malimbe.FodyRunner
 {
     using System.Collections.Generic;
     using System.IO;
@@ -67,7 +67,7 @@
                     continue;
                 }
 
-                WeaverEntry existingEntry = _weaverEntries.FirstOrDefault(entry => entry.AssemblyName == assemblyName);
+                WeaverEntry existingEntry = _weaverEntries.FirstOrDefault(entry => entry.ElementName == assemblyName);
                 int index = _weaverEntries.Count;
                 if (existingEntry != null)
                 {
@@ -80,9 +80,7 @@
                 WeaverEntry weaverEntry = new WeaverEntry
                 {
                     Element = weaverElement.ToString(SaveOptions.OmitDuplicateNamespaces),
-                    AssemblyName = assemblyName,
                     AssemblyPath = assemblyPath,
-                    TypeName = "ModuleWeaver"
                 };
                 _weaverEntries.Insert(index, weaverEntry);
             }
@@ -118,7 +116,7 @@
             return Task.Run(
                 () =>
                 {
-                    string assemblyFileName = Path.GetFileNameWithoutExtension(assemblyFilePath);
+                    string assemblyFileName = Path.GetFileName(assemblyFilePath);
                     if (assemblyFileName != null
                         && _assemblyRegexes.TrueForAll(regex => !regex.IsMatch(assemblyFileName)))
                     {
@@ -146,11 +144,20 @@
                     {
                         AssemblyFilePath = assemblyFilePath,
                         References = string.Join(";", references),
+
+                        KeyFilePath = string.Empty,
                         ReferenceCopyLocalPaths = new List<string>(),
-                        DefineConstants = defineConstants,
+                        RuntimeCopyLocalPaths = new List<string>(),
+                        SignAssembly = false,
+                        DelaySign = false,
                         Logger = _logForwarder,
+                        SolutionDirectoryPath = string.Empty,
                         Weavers = _weaverEntries,
-                        DebugSymbols = isDebugBuild ? DebugSymbolsType.External : DebugSymbolsType.None
+                        IntermediateDirectoryPath = string.Empty,
+                        DefineConstants = defineConstants,
+                        ProjectDirectoryPath = string.Empty,
+                        ProjectFilePath = string.Empty,
+                        DocumentationFilePath = string.Empty,
                     };
                     CancellationTokenRegistration cancellationTokenRegistration =
                         // ReSharper disable once AccessToDisposedClosure

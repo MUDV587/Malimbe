@@ -1,4 +1,4 @@
-﻿namespace Malimbe.BehaviourStateRequirementMethod.Fody
+namespace Malimbe.BehaviourStateRequirementMethod.Fody
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -42,7 +42,7 @@
 
                 if (gameObjectActivity == GameObjectActivity.None && !behaviourNeedsToBeEnabled)
                 {
-                    LogWarning(
+                    WriteWarning(
                         $"The method '{methodDefinition.FullName}' is annotated to require a Behaviour state"
                         + " but the attribute constructor arguments result in no action being taken.");
                     continue;
@@ -52,7 +52,7 @@
                 Collection<Instruction> instructions = body.Instructions;
                 if (instructions.Count == 0)
                 {
-                    LogWarning(
+                    WriteWarning(
                         $"The method '{methodDefinition.FullName}' is annotated to require a Behaviour state"
                         + " but the method has no instructions in its body and thus no action is being taken.");
                     continue;
@@ -80,11 +80,11 @@
                 ModuleDefinition.ImportReference(
                     typeDefinition.Properties.Single(definition => definition.Name == propertyName).GetMethod);
 
-            TypeDefinition behaviourTypeDefinition = FindType("UnityEngine.Behaviour");
-            TypeDefinition gameObjectTypeDefinition = FindType("UnityEngine.GameObject");
+            TypeDefinition behaviourTypeDefinition = FindTypeDefinition("UnityEngine.Behaviour");
+            TypeDefinition gameObjectTypeDefinition = FindTypeDefinition("UnityEngine.GameObject");
 
             _behaviourTypeReference = ModuleDefinition.ImportReference(behaviourTypeDefinition);
-            _getGameObjectMethodReference = ImportPropertyGetter(FindType("UnityEngine.Component"), "gameObject");
+            _getGameObjectMethodReference = ImportPropertyGetter(FindTypeDefinition("UnityEngine.Component"), "gameObject");
             _getActiveSelfMethodReference = ImportPropertyGetter(gameObjectTypeDefinition, "activeSelf");
             _getActiveInHierarchyMethodReference = ImportPropertyGetter(gameObjectTypeDefinition, "activeInHierarchy");
             _getIsActiveAndEnabledMethodReference =
@@ -102,14 +102,14 @@
             }
 
             methodDefinition.CustomAttributes.Remove(foundAttribute);
-            LogInfo($"Removed the attribute '{_fullAttributeName}' from the method '{methodDefinition.FullName}'.");
+            WriteInfo($"Removed the attribute '{_fullAttributeName}' from the method '{methodDefinition.FullName}'.");
 
             if (methodDefinition.DeclaringType.IsSubclassOf(_behaviourTypeReference))
             {
                 return true;
             }
 
-            LogError(
+            WriteError(
                 $"The method '{methodDefinition.FullName}' is annotated to require a Behaviour state"
                 + $" but the declaring type doesn't derive from '{_behaviourTypeReference.FullName}'.");
             return false;
@@ -184,7 +184,7 @@
                 }
             }
 
-            LogInfo($"Added (an) early return(s) to the method '{methodDefinition.FullName}'.");
+            WriteInfo($"Added (an) early return(s) to the method '{methodDefinition.FullName}'.");
         }
 
         private static void AddEarlyReturnInstruction(

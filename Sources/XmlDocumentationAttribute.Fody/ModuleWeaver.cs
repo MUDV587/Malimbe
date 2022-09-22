@@ -1,4 +1,4 @@
-﻿namespace Malimbe.XmlDocumentationAttribute.Fody
+namespace Malimbe.XmlDocumentationAttribute.Fody
 {
     using System;
     using System.Collections.Generic;
@@ -64,7 +64,7 @@
 
                     if (summaries == null)
                     {
-                        LogError(
+                        WriteError(
                             $"The field '{fieldDefinition.FullName}' is annotated to be documented by XML"
                             + " documentation comments but none were found.");
                         continue;
@@ -72,7 +72,7 @@
 
                     if (summaries.Count > 1)
                     {
-                        LogError(
+                        WriteError(
                             $"There are at least two identifiers called '{fieldDefinition.Name}' in '{lookupTypeDefinition.FullName}'."
                             + " Only a single identifier name per source code file is currently supported. The first occurrence of"
                             + $" the identifier name will be annotated using the attribute '{_attributeDefinition.FullName}'.");
@@ -91,7 +91,7 @@
         private void FindReferences()
         {
             string typeName = Config?.Attribute("FullAttributeName")?.Value ?? "UnityEngine.TooltipAttribute";
-            TypeDefinition typeDefinition = FindType(typeName);
+            TypeDefinition typeDefinition = FindTypeDefinition(typeName);
             if (typeDefinition == null)
             {
                 throw new WeavingException($"No attribute with the name '{typeName}' was found.");
@@ -117,14 +117,14 @@
             string identifierReplacementFormat = Config.Attribute(IdentifierReplacementFormatElementName)?.Value;
             if (string.IsNullOrWhiteSpace(identifierReplacementFormat))
             {
-                LogInfo(
+                WriteInfo(
                     $"No '{IdentifierReplacementFormatElementName}' element is specified in the configuration."
                     + $" Falling back to use '{DefaultIdentifierReplacementFormat}'.");
                 identifierReplacementFormat = DefaultIdentifierReplacementFormat;
             }
             else if (!identifierReplacementFormat.Contains("{0}"))
             {
-                LogError(
+                WriteError(
                     $"The '{IdentifierReplacementFormatElementName}' configuration element doesn't specify a format"
                     + $" placeholder '{{0}}'. Falling back to use '{DefaultIdentifierReplacementFormat}'.");
                 identifierReplacementFormat = DefaultIdentifierReplacementFormat;
@@ -143,7 +143,7 @@
             }
 
             fieldDefinition.CustomAttributes.Remove(foundAttribute);
-            LogInfo($"Removed the attribute '{_fullAttributeName}' from the field '{fieldDefinition.FullName}'.");
+            WriteInfo($"Removed the attribute '{_fullAttributeName}' from the field '{fieldDefinition.FullName}'.");
             return true;
         }
 
@@ -151,7 +151,7 @@
             TypeDefinition typeDefinition,
             string identifierReplacementFormat)
         {
-            string GetDocumentFilePath(TypeDefinition definition) =>
+            static string GetDocumentFilePath(TypeDefinition definition) =>
                 definition.Methods.Select(methodDefinition => methodDefinition.DebugInformation)
                     .SelectMany(information => information.SequencePoints)
                     .FirstOrDefault()
@@ -243,7 +243,7 @@
             bool didAttributeAlreadyExist = existingAttribute != null;
             if (didAttributeAlreadyExist)
             {
-                LogWarning(
+                WriteWarning(
                     $"The field '{fieldDefinition.FullName}' is documented using XML documentation comments"
                     + $" but already uses the attribute '{_attributeDefinition.FullName}'."
                     + " The attribute is replaced.");
@@ -259,7 +259,7 @@
             };
             fieldDefinition.CustomAttributes.Add(newAttribute);
 
-            LogInfo(
+            WriteInfo(
                 $"{(didAttributeAlreadyExist ? "Updated" : "Added")} the attribute"
                 + $" '{_attributeDefinition.FullName}' for the field '{fieldDefinition.FullName}'"
                 + " using the field's XML documentation comments.");
